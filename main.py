@@ -22,6 +22,8 @@ DEBUG = os.getenv('DEBUG', False) == "True"
 INCLUDE_RTS = os.getenv('INCLUDE_RTS', True) == "True"
 EXCLUDE_REPLIES = os.getenv('EXCLUDE_REPLIES', False) == "True"
 
+redis = redis.from_url(REDIS_URL)
+
 # build a (connected) Twitter API object
 def connect():
     api = twitter.Api(consumer_key=MY_CONSUMER_KEY,
@@ -63,8 +65,6 @@ def main(argv):
         api = connect()
     else:
         api = None
-
-    redis = redis.from_url(REDIS_URL)
 
     price_old = float( get_old_bitcoin_price() )
     price_now = float( get_bitcoin_price() )
