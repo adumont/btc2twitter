@@ -4,6 +4,7 @@ import re
 import sys
 import twitter
 import requests
+import datetime
 
 # Load Heroku Config Variables (https://devcenter.heroku.com/articles/config-vars)
 MY_CONSUMER_KEY = os.environ['MY_CONSUMER_KEY']
@@ -12,7 +13,7 @@ MY_ACCESS_TOKEN_KEY = os.environ['MY_ACCESS_TOKEN_KEY']
 MY_ACCESS_TOKEN_SECRET = os.environ['MY_ACCESS_TOKEN_SECRET']
 TWEET_ACCOUNT = os.environ['TWEET_ACCOUNT']
 
-ODDS = int(os.getenv('ODDS', 8))
+FREQ = int(os.getenv('FREQ', 8))
 DEBUG = os.getenv('DEBUG', False) == "True"
 
 # some API Parameters for user_timeline
@@ -42,14 +43,14 @@ def get_bitcoin_price():
 def main(argv):
     debug = DEBUG
     
-    # determine odds of running
-    if ODDS>0 and debug==False:
-        guess = random.choice(range(ODDS))
+    # determine if we run or exit
+    if FREQ>0 and debug==False:
+        now = datetime.datetime.now().hour % FREQ
     else:
-        guess = 0
+        now = 0
 
-    if guess > 0:
-        print str(guess) + " No, sorry, not this time."
+    if now > 0:
+        print str(now) + " No, sorry, not this time."
         sys.exit()
 
     # connect to API if necessary
@@ -58,7 +59,7 @@ def main(argv):
     else:
         api = None
 
-    tweet = "El precio de 1 bitcoin es " + get_bitcoin_price() + " EUR" 
+    tweet = "El precio de 1 btc es " + get_bitcoin_price() + " EUR #bitcoin"
         
     post_tweet(api, debug, tweet)
 
