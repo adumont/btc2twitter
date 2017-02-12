@@ -5,6 +5,7 @@ import sys
 import twitter
 import requests
 import datetime
+import redis
 
 # Load Heroku Config Variables (https://devcenter.heroku.com/articles/config-vars)
 MY_CONSUMER_KEY = os.environ['MY_CONSUMER_KEY']
@@ -12,6 +13,7 @@ MY_CONSUMER_SECRET = os.environ['MY_CONSUMER_SECRET']
 MY_ACCESS_TOKEN_KEY = os.environ['MY_ACCESS_TOKEN_KEY']
 MY_ACCESS_TOKEN_SECRET = os.environ['MY_ACCESS_TOKEN_SECRET']
 TWEET_ACCOUNT = os.environ['TWEET_ACCOUNT']
+REDIS_URL = os.getenv('REDISTOGO_URL')
 
 FREQ = int(os.getenv('FREQ', 8))
 DEBUG = os.getenv('DEBUG', False) == "True"
@@ -36,9 +38,12 @@ def post_tweet(api, debug, ebook_tweet):
         status = api.PostUpdate(ebook_tweet)
         print status.text.encode('utf-8')        
 
+def get_old_bitcoin_price():
+   return redis.get('last_price')
+
 def get_bitcoin_price():
    a = requests.get('https://api.coindesk.com/v1/bpi/currentprice/EUR.json').json()
-   return a['bpi']['EUR']['rate'].replace('.', ',')
+   return a['bpi']['EUR']['rate']
     
 def main(argv):
     debug = DEBUG
@@ -59,10 +64,23 @@ def main(argv):
     else:
         api = None
 
-    tweet = "El precio de 1 btc es " + get_bitcoin_price() + " EUR #bitcoin"
+    redis = redis.from_url(REDIS_URL)
+
+    price_old = float( get_old_bitcoin_price() )
+    price_now = float( get_bitcoin_price() )
+
+    diff = (price_now/price_old -1)*100
+
+    print "Old : " + price_old
+    print "Now : " + price_now
+    print "Diff: " + diff + "%"
+
+    tweet = "El precio de 1 btc es " + price_now + " EUR #bitcoin"
+
+    redis.set('last_price', price_now)
         
     post_tweet(api, debug, tweet)
 
-            
+
 if __name__ == "__main__":
     main(sys.argv[1:])
