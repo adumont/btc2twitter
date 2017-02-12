@@ -22,8 +22,8 @@
         "TWEET_ACCOUNT": {
             "description": "Name of the Twitter account (no @) to post to"
         },
-        "ODDS": {
-            "description": "How often (in hours) to tweet, in average. 0=always",
+        "FREQ": {
+            "description": "Frequency, tweet every FREQ hours. (0=always)",
             "value": "8"
         },
         "DEBUG": {
@@ -33,6 +33,7 @@
         }
     },
     "addons": [
-        "scheduler:standard"
+        "scheduler:standard",
+	"redistogo:nano"
     ]
 }
