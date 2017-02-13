@@ -66,20 +66,33 @@ def main(argv):
     else:
         api = None
 
-    price_old = float( get_old_bitcoin_price() )
     price_now = float( get_bitcoin_price() )
+    price_old = get_old_bitcoin_price()
+    if price_old == None:
+        price_old = price_now
+
+    price_old = float( price_old )
 
     diff = (price_now/price_old -1)*100
 
-    print "Old : " + price_old
-    print "Now : " + price_now
-    print "Diff: " + diff + "%"
+    print "Old : " + str(price_old)
+    print "Now : " + str(price_now)
+    print "Diff: " + str(diff) + "%"
 
-    tweet = "El precio de 1 btc es " + price_now + " EUR #bitcoin"
+    tweet = "El precio de 1 btc es " + str(price_now) + " EUR"
+
+    if diff > 0:
+        tweet += " (+%0.3f" % (diff)
+        tweet += "%)"
+    elif diff < 0:
+        tweet += " (%0.3f" % (diff)
+        tweet += "%)"
+
+    tweet += " #bitcoin"
+
+    post_tweet(api, debug, tweet)
 
     redis.set('last_price', price_now)
-        
-    post_tweet(api, debug, tweet)
 
 
 if __name__ == "__main__":
