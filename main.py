@@ -45,7 +45,7 @@ def get_old_bitcoin_price():
 
 def get_bitcoin_price():
    a = requests.get('https://api.coindesk.com/v1/bpi/currentprice/EUR.json').json()
-   return a['bpi']['EUR']['rate']
+   return a['bpi']['EUR']['rate_float']
     
 def main(argv):
     debug = DEBUG
